@@ -22,9 +22,19 @@ var parseBold = function(str) {
   var stra = [];
   while ((stra = boldRegExp.exec(str)) !== null) {
     str = str.replace(stra[0], '<b>' + stra[2] + '</b>')
+
   }
   return str;
  }
+
+var parseCodeBlock = function(str) {
+  var codeRegExp = /`{1}(\w+)`{1}/;
+  var stra = [];
+  while ((stra = codeRegExp.exec(str)) !== null) {
+    str = str.replace(stra[0], '<pre>' + stra[1] + '</pre>');
+  }
+  return str;
+}
 
 var parseStrong = function(str) {
   var strongRegExp = /(~~)(.*?)\1/;
@@ -34,7 +44,6 @@ var parseStrong = function(str) {
   }
   return str;
 }
-
 
  var parseHorizontaleLine = function(str) {
   var horizontalRegExp = /^(?:([\*\-_] ?)+)\1\1$/gm;
@@ -49,7 +58,11 @@ var parseStrong = function(str) {
   var linkRegExp = /\[([^\[]+)\]\(([^\)]+)\)/;
   var stra = [];
   while ((stra = linkRegExp.exec(str)) !== null) {
-    str = str.replace(stra[0], '<a ' + 'href="' + stra[2] + '">' + stra[1] + '</a>');
+    if (stra[0].substr(0, 1) === '!') {
+      str = str.replace(stra[0], '<img src="' + stra[2] + '" alt="' + stra[1] + '" title="' + stra[1] + '" />\n');
+    } else {
+      str = str.replace(stra[0], '<a ' + 'href="' + stra[2] + '">' + stra[1] + '</a>');
+    }
   }
   return str;
  }
@@ -60,15 +73,6 @@ var parseNewLine = function(str) {
   while ((stra = newLineRegExp.exec(str)) !== null) {
     tmp = stra[0].replace('\n', '<br/>')
     str = str.replace(stra[0], tmp);
-  }
-  return str;
- }
-
- var parseCode = function(str) {
-  var codeRegExp = /`{1}(\w+)`{1}/;
-  var stra = [];
-  while ((stra = codeRegExp.exec(str)) !== null) {
-    str = str.replace(stra[0], '<pre>' + stra[1] + '</pre>');
   }
   return str;
  }
@@ -101,9 +105,10 @@ var markdown = {
     str = parseStrong(str);
     str = parseHorizontaleLine(str);
     str = parseLink(str);
-    str = parseCode(str);
     str = parseBlockQuote(str);
     str = parseDel(str);
+    str = parseCodeBlock(str);
+    str = parseHorizontaleLine(str);
     return str;
   }
 };
